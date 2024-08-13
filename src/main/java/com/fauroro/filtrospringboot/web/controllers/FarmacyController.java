@@ -1,6 +1,53 @@
 package com.fauroro.filtrospringboot.web.controllers;
 
+import com.fauroro.filtrospringboot.domain.services.farmacy.IFarmacy;
+import com.fauroro.filtrospringboot.persistence.entities.Farmacy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/farmacy")
 public class FarmacyController {
+
+    @Autowired
+    private IFarmacy farmacyService;
+
+    @GetMapping
+    public List<Farmacy> getAll(){
+        return farmacyService.findAll();
+    }
+
+    @GetMapping("/find/{id}")
+    public Optional<Farmacy> getById(@PathVariable int id){
+        return farmacyService.findById(id);
+    }
+
+    @PostMapping
+    public ResponseEntity<Farmacy> postMethodName(@RequestBody Farmacy farmacy){
+        Farmacy savedFarmacy = farmacyService.save(farmacy);
+        return new ResponseEntity<>(savedFarmacy, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/put/{id}")
+    public ResponseEntity<Farmacy> update(@PathVariable int id, @RequestBody Farmacy updatedFarmacy) {
+        Optional<Farmacy> optionalFarmacy = farmacyService.update(id, updatedFarmacy);
+        return optionalFarmacy.map(farmacy -> new ResponseEntity<>(farmacy, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable int id){
+        Optional<Farmacy> deletedFarmacy = farmacyService.delete(id);
+        if (deletedFarmacy.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 
 }
 
